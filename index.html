@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Yassin's Matchweek</title>
+<style>
+  :root{
+    --bg:#F5FFF6;
+    --card:#FFFFFF;
+    --border:#E1EFE2;
+    --ink:#122417;
+    --muted:#5C6E60;
+    --study:#E5123B;
+    --online:#FFB800;
+    --offline:#149A47;
+    --gold:#FFB800;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      repeating-linear-gradient(135deg, rgba(20,154,71,0.05) 0 40px, transparent 40px 80px),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Arial Black","Helvetica Neue",Arial,sans-serif;
+    padding:0 0 60px;
+  }
+  .band{
+    background:linear-gradient(100deg, var(--study), #FF4D6D 55%, var(--gold));
+    padding:36px 18px 46px;
+    color:#fff;
+  }
+  .wrap{max-width:1020px;margin:0 auto;}
+  .band .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:22px;}
+  h1{
+    font-size:clamp(30px,5.5vw,46px);
+    line-height:1.02;
+    margin:0 0 8px;
+    letter-spacing:-0.5px;
+  }
+  .band p{margin:0;font-family:Arial,sans-serif;font-weight:600;font-size:15px;max-width:38ch;opacity:.95;}
+  .stats{display:flex;gap:12px;}
+  .stat{
+    background:rgba(255,255,255,0.18);
+    border:2px solid rgba(255,255,255,0.5);
+    border-radius:14px;
+    padding:10px 16px;
+    text-align:center;
+    min-width:84px;
+    backdrop-filter:blur(2px);
+  }
+  .stat .n{font-size:24px;}
+  .stat .l{font-family:Arial,sans-serif;font-weight:700;font-size:10.5px;margin-top:2px;letter-spacing:.4px;}
+
+  .content{max-width:1020px;margin:0 auto;padding:0 18px;}
+
+  .legend-box{
+    background:var(--card);
+    border:2px solid var(--border);
+    border-radius:18px;
+    padding:18px 20px;
+    margin:-26px 0 30px;
+    box-shadow:0 10px 24px rgba(20,60,30,0.08);
+    font-family:Arial,sans-serif;
+  }
+  .legend-title{font-family:"Arial Black",Arial,sans-serif;font-size:14px;margin-bottom:10px;}
+  .legend-row{display:flex;flex-wrap:wrap;gap:18px;}
+  .legend-item{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px;color:var(--muted);}
+  .swatch{width:16px;height:16px;border-radius:5px;display:inline-block;}
+  .swatch.study{background:var(--study);}
+  .swatch.online{background:var(--online);}
+  .swatch.offline{background:var(--offline);}
+
+  .bar-shell{
+    background:var(--card);
+    border:2px solid var(--border);
+    border-radius:999px;
+    height:16px;
+    overflow:hidden;
+    margin-bottom:34px;
+  }
+  .bar-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,var(--study),var(--gold));
+    transition:width .5s ease;
+  }
+
+  .day{margin-bottom:32px;border-radius:20px;padding:2px;}
+  .day.today{background:linear-gradient(120deg, var(--gold), transparent 65%);}
+  .day-inner{background:transparent;border-radius:18px;}
+  .day.today .day-inner{padding:14px 14px 2px;}
+
+  .day-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:12px;
+    flex-wrap:wrap;
+    font-family:Arial,sans-serif;
+  }
+  .day-head .dname{font-family:"Arial Black",Arial,sans-serif;font-size:19px;}
+  .day-head .dfocus{color:var(--muted);font-size:13px;font-weight:600;}
+  .today-badge{
+    font-size:10.5px;
+    font-weight:800;
+    letter-spacing:.3px;
+    background:var(--gold);
+    color:#2B1D00;
+    padding:2px 10px;
+    border-radius:999px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+    gap:12px;
+  }
+
+  .quest{
+    background:var(--card);
+    border:2px solid var(--border);
+    border-radius:16px;
+    padding:14px 16px;
+    position:relative;
+    border-left:6px solid var(--tag,var(--study));
+    font-family:Arial,sans-serif;
+  }
+  .quest.done{background:#F2FBF3;}
+  .quest .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .quest .subj{font-weight:800;font-size:14.5px;display:flex;align-items:center;gap:6px;}
+  .fave{
+    font-size:10px;font-weight:800;background:var(--study);color:#fff;
+    padding:1px 7px;border-radius:999px;
+  }
+  .quest .time{font-size:11.5px;color:var(--muted);margin-top:3px;font-weight:600;}
+  .quest .task{
+    font-size:13px;color:var(--muted);margin-top:8px;line-height:1.4;font-weight:600;
+    outline:none;border-radius:6px;padding:2px 4px;margin-left:-4px;
+  }
+  .quest .task:focus{background:#F2F2F2;color:var(--ink);}
+  .quest .task:hover{text-decoration:underline dotted;text-underline-offset:3px;}
+  .tagpill{
+    font-size:10.5px;
+    font-weight:800;
+    padding:3px 9px;
+    border-radius:999px;
+    background:var(--tag,var(--study));
+    color:#fff;
+    white-space:nowrap;
+  }
+  .check{
+    position:absolute;
+    top:14px;
+    right:14px;
+    width:22px;height:22px;
+    border-radius:7px;
+    border:2.5px solid var(--border);
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;
+    color:transparent;
+    font-weight:900;
+  }
+  .quest.done .check{
+    background:var(--tag,var(--study));
+    border-color:var(--tag,var(--study));
+    color:#fff;
+  }
+  .quest.done .subj{text-decoration:line-through;opacity:.55;}
+  .quest.done .task{text-decoration:line-through;opacity:.55;}
+
+  .quest[data-type="study"]{--tag:var(--study);}
+  .quest[data-type="online"]{--tag:var(--online);}
+  .quest[data-type="offline"]{--tag:var(--offline);}
+
+  footer{margin-top:26px;color:var(--muted);font-size:12.5px;line-height:1.6;font-family:Arial,sans-serif;font-weight:600;}
+  .save-note{
+    position:fixed;bottom:18px;right:18px;
+    background:var(--ink);color:#fff;
+    padding:8px 14px;border-radius:999px;font-size:12px;font-family:Arial,sans-serif;font-weight:700;
+    opacity:0;transition:opacity .3s ease;pointer-events:none;
+  }
+  .save-note.show{opacity:1;}
+</style>
+</head>
+<body>
+
+  <div class="band">
+    <div class="wrap">
+      <div>
+        <h1>Yassin's Matchweek ⚽</h1>
+        <p>Every session is a fixture. Play them all and top the table.</p>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="n" id="xpNow">0</div><div class="l">GOALS TODAY</div></div>
+        <div class="stat"><div class="n" id="doneCount">0/0</div><div class="l">FIXTURES DONE</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="legend-box">
+      <div class="legend-title">Color key</div>
+      <div class="legend-row">
+        <span class="legend-item"><i class="swatch study"></i>Study — red, your color</span>
+        <span class="legend-item"><i class="swatch online"></i>Online lecture — gold</span>
+        <span class="legend-item"><i class="swatch offline"></i>Offline lecture — green</span>
+      </div>
+    </div>
+
+    <div class="bar-shell"><div class="bar-fill" id="barFill"></div></div>
+
+    <div class="day" data-day="Friday">
+      <div class="day-inner">
+        <div class="day-head"><span class="dname">Friday</span><span class="dfocus">Biology + English</span></div>
+        <div class="grid">
+          <div class="quest" data-type="study" data-xp="20" data-id="fri-1"><div class="top"><div><div class="subj">Biology <span class="fave">Fave</span></div><div class="time">Study session</div></div><span class="tagpill">Study</span></div><div class="task" contenteditable="true" spellcheck="false">Study biology — new topic + revision</div><div class="check">✓</div></div>
+          <div class="quest" data-type="study" data-xp="20" data-id="fri-2"><div class="top"><div><div class="subj">English</div><div class="time">Study session</div></div><span class="tagpill">Study</span></div><div class="task" contenteditable="true" spellcheck="false">Study English — grammar + vocabulary</div><div class="check">✓</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="day" data-day="Saturday">
+      <div class="day-inner">
+        <div class="day-head"><span class="dname">Saturday</span><span class="dfocus">Arabic lecture + Physics + Arabic</span></div>
+        <div class="grid">
+          <div class="quest" data-type="online" data-xp="15" data-id="sat-1"><div class="top"><div><div class="subj">Arabic</div><div class="time">Online lecture</div></div><span class="tagpill">Online</span></div><div class="task" contenteditable="true" spellcheck="false">Online Arabic lecture</div><div class="check">✓</div></div>
+          <div class="quest" data-type="study" data-xp="20" data-id="sat-2"><div class="top"><div><div class="subj">Physics</div><div class="time">Study session</div></div><span class="tagpill">Study</span></div><div class="task" contenteditable="true" spellcheck="false">Study physics</div><div class="check">✓</div></div>
+          <div class="quest" data-type="study" data-xp="20" data-id="sat-3"><div class="top"><div><div class="subj">Arabic</div><div class="time">Study session</div></div><span class="tagpill">Study</span></div><div class="task" contenteditable="true" spellcheck="false">Study Arabic</div><div class="check">✓</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="day" data-day="Sunday">
+      <div class="day-inner">
+        <div class="day-head"><span class="dname">Sunday</span><span class="dfocus">Physics lecture + Geology + Biology</span></div>
+        <div class="grid">
+          <div class="quest" data-type="online" data-xp="15" data-id="sun-1"><div class="top"><div><div class="subj">Physics</div><div class="time">Online lecture</div></div><span class="tagpill">Online</span></div><div class="task" contenteditable="true" spellcheck="false">Online physics lecture</div><div class="check">✓</div></div>
+          <div class="quest" data-type="offline" data-xp="20" data-id="sun-2"><div class="top"><div><div class="subj">Geology</div><div class="time">5:00 – 8:00 PM</div></div><span class="tagpill">Offline</span></div><div class="task" contenteditable="true" spellcheck="false">Offline geology lecture</div><div class="check">✓</div></div>
+          <div class="quest" data-type="study" data-xp="20" data-id="sun-3"><div class="top"><div><div class="subj">Biology <span class="fave">Fave</span></div><div class="time">Study session</div></div><span class="tagpill">Study</span></div><div class="task" contenteditable="true" spellcheck="false">Study biology</div><div class="check">✓</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="day" data-day="Monday">
+      <div class="day-inner">
+        <div class="day-head"><span class="dname">Monday</span><span class="dfocus">English + Chemistry + Arabic lecture</span></div>
+        <div class="grid">
+          <div class="quest" data-type="study" data-xp="20" data-id="mon-1"><div class="top"><div><div class="subj">English</div><div class="time">Study session</div></div><span class="tagpill">Study</span></div><div class="task" contenteditable="true" spellcheck="false">Study English</div><div class="check">✓</div></div>
+          <div class="quest" data-type="study" data-xp="20" data-id="mon-2"><div class="top"><div><div class="subj">Chemistry</div><div class="time">Study session</div></div><span class="tagpill">Study</span></div><div class="task" contenteditable="true" spellcheck="false">Study chemistry</div><div class="check">✓</div></div>
+          <div class="quest" data-type="offline" data-xp="15" data-id="mon-3"><div class="top"><div><div class="subj">Arabic</div><div class="time">7:00 – 10:00 PM</div></div><span class="tagpill">Offline</span></div><div class="task" contenteditable="true" spellcheck="false">Offline Arabic lecture</div><div class="check">✓</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="day" data-day="Tuesday">
+      <div class="day-inner">
+        <div class="day-head"><span class="dname">Tuesday</span><span class="dfocus">Biology lecture + Physics + Geology</span></div>
+        <div class="grid">
+          <div class="quest" data-type="online" data-xp="15" data-id="tue-1"><div class="top"><div><div class="subj">Biology <span class="fave">Fave</span></div><div class="time">Online lecture</div></div><span class="tagpill">Online</span></div><div class="task" contenteditable="true" spellcheck="false">Online biology lecture</div><div class="check">✓</div></div>
+          <div class="quest" data-type="study" data-xp="20" data-id="tue-2"><div class="top"><div><div class="subj">Physics</div><div class="time">Study session</div></div><span class="tagpill">Study</span></div><div class="task" contenteditable="true" spellcheck="false">Study physics</div><div class="check">✓</div></div>
+          <div class="quest" data-type="study" data-xp="20" data-id="tue-3"><div class="top"><div><div class="subj">Geology</div><div class="time">Study session</div></div><span class="tagpill">Study</span></div><div class="task" contenteditable="true" spellcheck="false">Study geology</div><div class="check">✓</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="day" data-day="Wednesday">
+      <div class="day-inner">
+        <div class="day-head"><span class="dname">Wednesday</span><span class="dfocus">Chemistry + Physics lecture + Arabic</span></div>
+        <div class="grid">
+          <div class="quest" data-type="study" data-xp="20" data-id="wed-1"><div class="top"><div><div class="subj">Chemistry</div><div class="time">Study session</div></div><span class="tagpill">Study</span></div><div class="task" contenteditable="true" spellcheck="false">Study chemistry</div><div class="check">✓</div></div>
+          <div class="quest" data-type="offline" data-xp="15" data-id="wed-2"><div class="top"><div><div class="subj">Physics</div><div class="time">3:00 – 7:00 PM</div></div><span class="tagpill">Offline</span></div><div class="task" contenteditable="true" spellcheck="false">Offline physics lecture</div><div class="check">✓</div></div>
+          <div class="quest" data-type="study" data-xp="20" data-id="wed-3"><div class="top"><div><div class="subj">Arabic</div><div class="time">Study session</div></div><span class="tagpill">Study</span></div><div class="task" contenteditable="true" spellcheck="false">Study Arabic</div><div class="check">✓</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="day" data-day="Thursday">
+      <div class="day-inner">
+        <div class="day-head"><span class="dname">Thursday</span><span class="dfocus">English lecture + Physics + Chemistry lecture</span></div>
+        <div class="grid">
+          <div class="quest" data-type="offline" data-xp="15" data-id="thu-1"><div class="top"><div><div class="subj">English</div><div class="time">11:30 AM – 3:00 PM</div></div><span class="tagpill">Offline</span></div><div class="task" contenteditable="true" spellcheck="false">Offline English lecture</div><div class="check">✓</div></div>
+          <div class="quest" data-type="study" data-xp="10" data-id="thu-2"><div class="top"><div><div class="subj">Physics</div><div class="time">Overview</div></div><span class="tagpill">Study</span></div><div class="task" contenteditable="true" spellcheck="false">Overview physics — light review</div><div class="check">✓</div></div>
+          <div class="quest" data-type="online" data-xp="15" data-id="thu-3"><div class="top"><div><div class="subj">Chemistry</div><div class="time">Online lecture</div></div><span class="tagpill">Online</span></div><div class="task" contenteditable="true" spellcheck="false">Online chemistry lecture</div><div class="check">✓</div></div>
+        </div>
+      </div>
+    </div>
+
+    <footer>Click any task's text to edit it — edits and checkmarks save automatically. Matchday (today) gets a gold border, worked out from the real date. Biology's tagged "Fave" just for Yassin.</footer>
+  </div>
+
+<div class="save-note" id="saveNote">Saved</div>
+
+<script>
+  const quests = document.querySelectorAll('.quest');
+  const barFill = document.getElementById('barFill');
+  const xpNow = document.getElementById('xpNow');
+  const doneCount = document.getElementById('doneCount');
+  const saveNote = document.getElementById('saveNote');
+  const totalTasks = quests.length;
+
+  function totalXP(){
+    return Array.from(quests).reduce((s,q)=>s+Number(q.dataset.xp),0);
+  }
+
+  function updateStats(){
+    let earned = 0, done = 0;
+    quests.forEach(q=>{
+      if(q.classList.contains('done')){
+        earned += Number(q.dataset.xp);
+        done++;
+      }
+    });
+    xpNow.textContent = earned;
+    doneCount.textContent = done + '/' + totalTasks;
+    barFill.style.width = (earned/totalXP()*100) + '%';
+  }
+
+  function flashSave(){
+    saveNote.classList.add('show');
+    clearTimeout(flashSave._t);
+    flashSave._t = setTimeout(()=>saveNote.classList.remove('show'), 900);
+  }
+
+  async function saveDone(id, isDone){
+    try{ await window.storage.set('done:'+id, isDone ? '1' : '0'); flashSave(); }
+    catch(e){ console.error('save failed', e); }
+  }
+
+  async function saveText(id, text){
+    try{ await window.storage.set('text:'+id, text); flashSave(); }
+    catch(e){ console.error('save failed', e); }
+  }
+
+  async function loadAll(){
+    await Promise.all(Array.from(quests).map(async q=>{
+      const id = q.dataset.id;
+      try{
+        const doneRes = await window.storage.get('done:'+id);
+        if(doneRes && doneRes.value === '1') q.classList.add('done');
+      }catch(e){ /* no saved state yet */ }
+      try{
+        const textRes = await window.storage.get('text:'+id);
+        if(textRes && textRes.value) q.querySelector('.task').textContent = textRes.value;
+      }catch(e){ /* no saved text yet */ }
+    }));
+    updateStats();
+  }
+
+  quests.forEach(q=>{
+    const id = q.dataset.id;
+    q.querySelector('.check').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      q.classList.toggle('done');
+      updateStats();
+      saveDone(id, q.classList.contains('done'));
+    });
+    const taskEl = q.querySelector('.task');
+    taskEl.addEventListener('click', (e)=>e.stopPropagation());
+    taskEl.addEventListener('blur', ()=>{
+      saveText(id, taskEl.textContent.trim());
+    });
+  });
+
+  // Highlight today
+  const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const today = dayNames[new Date().getDay()];
+  document.querySelectorAll('.day').forEach(d=>{
+    if(d.dataset.day === today){
+      d.classList.add('today');
+      const head = d.querySelector('.day-head');
+      const badge = document.createElement('span');
+      badge.className = 'today-badge';
+      badge.textContent = 'MATCHDAY';
+      head.appendChild(badge);
+    }
+  });
+
+  loadAll();
+</script>
+</body>
+</html>
